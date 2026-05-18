@@ -1,10 +1,9 @@
 {
-  "projectId": "laughing-campaign-jcf5x",
-  "appId": "1:686611735153:web:460b128c5eda524aed31d0",
-  "apiKey": "AIzaSyB3ev2GC_TMQ9yF5YAZ3HeG0z96rZQclXo",
-  "authDomain": "laughing-campaign-jcf5x.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-507fe722-202c-4e08-801c-6a3b826855ed",
-  "storageBucket": "laughing-campaign-jcf5x.firebasestorage.app",
-  "messagingSenderId": "686611735153",
-  "measurementId": ""
-}
+  apiKey: "AIzaSyBmtKpV09mghDTM7t8Gr2LqUFbNguLBBLc",
+  authDomain: "jarvis-8f458.firebaseapp.com",
+  databaseURL: "https://jarvis-8f458-default-rtdb.firebaseio.com",
+  projectId: "jarvis-8f458",
+  storageBucket: "jarvis-8f458.firebasestorage.app",
+  messagingSenderId: "146465738672",
+  appId: "1:146465738672:web:2cf3e973f6a78413681075"
+};

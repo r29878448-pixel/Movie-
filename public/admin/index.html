@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FREE CINN Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="login-overlay" style="position: fixed; inset: 0; background: var(--bg-main); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+      <div class="form-container" style="width: 100%; max-width: 400px; text-align: center;">
+        <h1 style="font-size: 32px; font-weight: 700; color: var(--text-primary); margin-bottom: 20px;">Admin Login</h1>
+        <div class="form-group">
+          <input type="email" id="login-email" placeholder="Email" />
+        </div>
+        <div class="form-group">
+          <input type="password" id="login-password" placeholder="Password" />
+        </div>
+        <button class="btn" style="width: 100%; margin-top: 10px;" id="login-btn">Login</button>
+        <div style="margin-top: 15px; text-align: center; color: var(--text-secondary); font-weight: 600;">OR</div>
+        <button class="btn" style="width: 100%; margin-top: 15px; background-color: #fff; color: #444; display: flex; align-items: center; justify-content: center; gap: 10px;" id="login-google-btn">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 20px; height: 20px;" />
+          Sign in with Google
+        </button>
+        <div id="login-error" style="color: red; margin-top: 10px; font-weight: 600;"></div>
+      </div>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header"><h1>FREE CINEMA</h1></div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" id="nav-dashboard" class="active" onclick="showView('dashboard-view')">
+            <i class="fa-solid fa-table-columns"></i> <span>Analytics & Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-manage-movies" onclick="showView('manage-movies-view')">
+            <i class="fa-solid fa-film"></i> <span>Manage Movies</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-add-movie" onclick="showView('add-movie-view')">
+            <i class="fa-solid fa-plus"></i> <span>Add Movie</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-manage-series" onclick="showView('manage-series-view')">
+            <i class="fa-solid fa-layer-group"></i> <span>Manage Series</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-manage-anime" onclick="showView('manage-anime-view')">
+            <i class="fa-solid fa-dragon"></i> <span>Manage Anime</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-add-anime" onclick="showView('add-anime-view')">
+            <i class="fa-solid fa-plus-square"></i> <span>Add Anime</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-add-series" onclick="showView('add-series-view')">
+            <i class="fa-solid fa-plus-square"></i> <span>Add Series</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-manage-categories" onclick="showView('manage-categories-view')">
+            <i class="fa-solid fa-tags"></i><span>Manage Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-manage-livetv" onclick="showView('manage-livetv-view')">
+            <i class="fa-solid fa-tv"></i> <span>Manage Live TV</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-add-livetv" onclick="showView('add-livetv-view')">
+            <i class="fa-solid fa-plus-circle"></i> <span>Add Live TV</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-manage-ads" onclick="showView('manage-ads-view')">
+            <i class="fa-solid fa-bullhorn"></i> <span>Manage Ads</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-manage-plans" onclick="showView('manage-plans-view')">
+            <i class="fa-solid fa-crown"></i> <span>Manage Plans</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-premium-requests" onclick="showView('premium-requests-view')">
+            <i class="fa-solid fa-money-bill"></i> <span>Premium Requests</span>
+            <span class="nav-badge" id="premium-badge" style="display: none">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-manual-premium" onclick="showView('manual-premium-view')">
+            <i class="fa-solid fa-user-plus"></i> <span>Assign Premium</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-users" onclick="showView('users-view')">
+            <i class="fa-solid fa-users"></i> <span>Users & Ban System</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-movie-requests" onclick="showView('movie-requests-view')">
+            <i class="fa-solid fa-inbox"></i> <span>Movie Requests</span>
+            <span class="nav-badge" id="requests-badge" style="display: none">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-send-notification" onclick="showView('send-notification-view')">
+            <i class="fa-solid fa-paper-plane"></i> <span>Send Notification</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-app-control" onclick="showView('app-control-view')">
+            <i class="fa-solid fa-gears"></i> <span>App Control</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-maintenance" onclick="showView('maintenance-view')">
+            <i class="fa-solid fa-screwdriver-wrench"></i> <span>Maintenance Mode</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="nav-logout" onclick="firebase.auth().signOut()">
+            <i class="fa-solid fa-sign-out-alt"></i> <span>Logout</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <header class="main-header">
+        <button id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+        <h1 class="mobile-logo" style="margin-left: 15px;">FREE<span style="color: var(--primary-color);">CINN</span></h1>
+      </header>
+
+      <div id="status-message" class="status-message" style="display: none"></div>
+
+      <section id="dashboard-view" class="view active">
+        <h2 class="view-header">Analytics Dashboard</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-icon"><i class="fa-solid fa-ticket"></i></div>
+            <div class="stat-card-info">
+              <h3 id="total-movies-stat">0</h3>
+              <p>Total Movies</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="stat-card-info">
+              <h3 id="total-series-stat">0</h3>
+              <p>Total Series</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon"><i class="fa-solid fa-user-check"></i></div>
+            <div class="stat-card-info">
+              <h3 id="total-users-stat">0</h3>
+              <p>Total Users</p>
+            </div>
+          </div>
+          <div class="stat-card premium">
+            <div class="stat-card-icon"><i class="fa-solid fa-crown"></i></div>
+            <div class="stat-card-info">
+              <h3 id="total-vip-stat">0</h3>
+              <p>Active VIP Users</p>
+            </div>
+          </div>
+          <div class="stat-card revenue">
+            <div class="stat-card-icon"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="stat-card-info">
+              <h3 id="total-revenue-stat">₹0</h3>
+              <p>Total Revenue (Est.)</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+            <div class="stat-card-info">
+              <h3 id="total-livetv-stat">0</h3>
+              <p>Live Channels</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Manage Movies -->
+      <section id="manage-movies-view" class="view">
+        <h2 class="view-header">Manage Movies</h2>
+        <div id="movie-grid-container" class="movie-grid"></div>
+      </section>
+
+      <!-- Add Movie -->
+      <section id="add-movie-view" class="view">
+        <h2 class="view-header" id="movie-form-title">Add New Movie</h2>
+        <div class="form-container">
+          <input type="hidden" id="movie-edit-id" />
+          <div class="form-group">
+            <label><i class="fa-solid fa-magnifying-glass"></i> TMDB Search (Movie)</label>
+            <input type="text" id="movie-tmdb-search" placeholder="Search by Name or enter TMDB ID" />
+            <button class="btn" style="margin-top: 10px" onclick="searchTmdb('movie')">Search Movie</button>
+          </div>
+          <div class="form-group"><label><i class="fa-solid fa-heading"></i> Title</label><input type="text" id="movie-title" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-image"></i> Poster URL</label><input type="text" id="movie-poster" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-panorama"></i> Backdrop URL</label><input type="text" id="movie-backdrop" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-star"></i> Rating</label><input type="text" id="movie-rating" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-calendar-days"></i> Year</label><input type="number" id="movie-year" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-pen-to-square"></i> Storyline</label><textarea id="movie-storyline"></textarea></div>
+          <div class="form-group"><label><i class="fa-solid fa-folder-open"></i> Categories (Select Multiple)</label>
+            <div id="movie-category-wrapper" class="category-checkbox-wrapper"><p style="color: var(--text-secondary); font-size: 12px">Loading categories...</p></div>
+          </div>
+          <div class="form-group" style="display: flex; gap: 20px">
+             <label style="cursor: pointer;"><input type="checkbox" id="movie-is-premium" style="width: auto; margin-right: 10px"/> Premium (VIP Only)</label>
+          </div>
+          <hr />
+          <div class="form-group"><label><i class="fa-solid fa-link"></i> Movie Stream Link</label><input type="text" id="movie-link" /></div>
+          <button class="btn" id="save-movie-btn" onclick="handleSaveMovie()">Save Movie</button>
+        </div>
+      </section>
+
+      <!-- Manage Series -->
+      <section id="manage-series-view" class="view">
+        <h2 class="view-header">Manage Series</h2>
+        <div id="series-grid-container" class="movie-grid"></div>
+      </section>
+
+      <!-- Add Series -->
+      <section id="add-series-view" class="view">
+        <h2 class="view-header" id="series-form-title">Add New Series</h2>
+        <div class="form-container">
+          <input type="hidden" id="series-edit-id" />
+          <div class="form-group"><label><i class="fa-solid fa-magnifying-glass"></i> TMDB Search (TV Show)</label><input type="text" id="series-tmdb-search" placeholder="Search by Name or enter TMDB ID" /><button class="btn" style="margin-top: 10px" onclick="searchTmdb('tv')">Search TV Show</button></div>
+          <div class="form-group"><label><i class="fa-solid fa-heading"></i> Title</label><input type="text" id="series-title" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-image"></i> Poster URL</label><input type="text" id="series-poster" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-panorama"></i> Backdrop URL</label><input type="text" id="series-backdrop" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-star"></i> Rating</label><input type="text" id="series-rating" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-calendar-days"></i> Year</label><input type="number" id="series-year" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-pen-to-square"></i> Storyline</label><textarea id="series-storyline"></textarea></div>
+          <div class="form-group"><label><i class="fa-solid fa-folder-open"></i> Categories (Select Multiple)</label>
+            <div id="series-category-wrapper" class="category-checkbox-wrapper"><p style="color: var(--text-secondary); font-size: 12px">Loading categories...</p></div>
+          </div>
+          <div class="form-group" style="display: flex; gap: 20px">
+            <label style="cursor: pointer;"><input type="checkbox" id="series-is-premium" style="width: auto; margin-right: 10px" /> Premium Series (VIP)</label>
+          </div>
+          <hr />
+          <div class="form-group">
+            <label style="justify-content: space-between"><span><i class="fa-solid fa-list-ol"></i> Seasons & Episodes</span><button type="button" class="btn-sm" onclick="addSeason('series')">+ Add Season</button></label>
+            <div id="series-seasons-container"></div>
+          </div>
+          <button class="btn" id="save-series-btn" onclick="handleSaveSeries()">Save Series</button>
+        </div>
+      </section>
+
+      <!-- Manage Anime -->
+      <section id="manage-anime-view" class="view">
+        <h2 class="view-header">Manage Anime</h2>
+        <div id="anime-grid-container" class="movie-grid"></div>
+      </section>
+
+      <!-- Add Anime -->
+      <section id="add-anime-view" class="view">
+        <h2 class="view-header" id="anime-form-title">Add New Anime</h2>
+        <div class="form-container">
+          <input type="hidden" id="anime-edit-id" />
+          <div class="form-group"><label><i class="fa-solid fa-magnifying-glass"></i> TMDB Search (Anime)</label><input type="text" id="anime-tmdb-search" placeholder="Search by Name or enter TMDB ID" /><button class="btn" style="margin-top: 10px" onclick="searchTmdb('tv', 'anime')">Search Anime</button></div>
+          <div class="form-group"><label><i class="fa-solid fa-heading"></i> Title</label><input type="text" id="anime-title" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-image"></i> Poster URL</label><input type="text" id="anime-poster" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-panorama"></i> Backdrop URL</label><input type="text" id="anime-backdrop" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-star"></i> Rating</label><input type="text" id="anime-rating" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-calendar-days"></i> Year</label><input type="number" id="anime-year" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-pen-to-square"></i> Storyline</label><textarea id="anime-storyline"></textarea></div>
+          <div class="form-group"><label><i class="fa-solid fa-folder-open"></i> Categories (Select Multiple)</label>
+            <div id="anime-category-wrapper" class="category-checkbox-wrapper"><p style="color: var(--text-secondary); font-size: 12px">Loading categories...</p></div>
+          </div>
+          <div class="form-group" style="display: flex; gap: 20px">
+            <label style="cursor: pointer;"><input type="checkbox" id="anime-is-premium" style="width: auto; margin-right: 10px" /> Premium Anime (VIP)</label>
+          </div>
+          <hr />
+          <div class="form-group">
+            <label style="justify-content: space-between"><span><i class="fa-solid fa-list-ol"></i> Seasons & Episodes</span><button type="button" class="btn-sm" onclick="addSeason('anime')">+ Add Season</button></label>
+            <div id="anime-seasons-container"></div>
+          </div>
+          <button class="btn" id="save-anime-btn" onclick="handleSaveAnime()">Save Anime</button>
+        </div>
+      </section>
+
+      <!-- Categories -->
+      <section id="manage-categories-view" class="view">
+        <h2 class="view-header">Manage Categories</h2>
+        <div class="form-container" style="max-width: 500px; margin-bottom: 30px">
+          <div class="form-group"><label><i class="fa-solid fa-plus"></i> Add New Category</label><input type="text" id="category-name" placeholder="e.g., Hollywood" /></div>
+          <button class="btn" onclick="handleSaveCategory()">Save Category</button>
+        </div>
+        <div id="category-list-container"></div>
+      </section>
+
+      <!-- Live TV -->
+      <section id="manage-livetv-view" class="view">
+        <h2 class="view-header">Manage Live TV</h2>
+        <div id="livetv-grid-container" class="movie-grid"></div>
+      </section>
+      <section id="add-livetv-view" class="view">
+        <h2 class="view-header" id="livetv-form-title">Add New Live TV Channel</h2>
+        <div class="form-container">
+          <input type="hidden" id="livetv-edit-id" />
+          <div class="form-group"><label><i class="fa-solid fa-heading"></i> Channel Name</label><input type="text" id="livetv-name" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-image"></i> Logo URL</label><input type="text" id="livetv-logo" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-link"></i> Stream URL</label><input type="text" id="livetv-stream" /></div>
+          <div class="form-group">
+             <label><i class="fa-solid fa-folder-open"></i> Category</label>
+             <input type="text" id="livetv-category" placeholder="Entertainment, News, Sports..." />
+          </div>
+          <button class="btn" id="save-livetv-btn" onclick="handleSaveLiveTv()">Save Channel</button>
+        </div>
+      </section>
+
+      <!-- Ads -->
+      <section id="manage-ads-view" class="view">
+        <h2 class="view-header">Manage Advertisements</h2>
+        <div class="form-container">
+          <h3 style="margin-bottom: 15px">Create New Ad</h3>
+          <input type="hidden" id="ad-edit-id" />
+          <div class="form-group"><label><i class="fa-solid fa-heading"></i> Ad Title (Internal Use)</label><input type="text" id="ad-title" placeholder="e.g., Betting App Promo 1" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-layer-group"></i> Ad Type</label><select id="ad-type"><option value="image">Image Banner</option><option value="video">Video Ad</option></select></div>
+          <div class="form-group"><label><i class="fa-solid fa-image"></i> Media URL (Image or Video Link)</label><input type="text" id="ad-media-url" placeholder="https://.../ad.jpg" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-list"></i> Target Category</label><input type="text" id="ad-target-category" placeholder="All" value="all" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-arrows-to-dot"></i> Placement Area</label>
+             <select id="ad-placement">
+               <option value="home_top">Home - Top</option>
+               <option value="home_middle">Home - Middle</option>
+               <option value="home_bottom">Home - Bottom</option>
+               <option value="detail_top">Detail Page - Top</option>
+               <option value="detail_bottom">Detail Page - Bottom</option>
+               <option value="player_preroll">Video Player - Preroll (Before video starts)</option>
+               <option value="player_pause">Video Player - On Pause</option>
+             </select>
+          </div>
+          <div class="form-group"><label><i class="fa-solid fa-link"></i> Click Target URL</label><input type="text" id="ad-target-url" placeholder="https://website.com" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-clock"></i> Duration For Pre-Roll (Seconds)</label><input type="number" id="ad-duration" value="5" /></div>
+          <div class="form-group"><label style="cursor: pointer;"><input type="checkbox" id="ad-is-active" style="width: auto; margin-right: 10px" checked /> Enable Immediately</label></div>
+          <button class="btn" id="save-ad-btn" onclick="handleSaveAd()">Save Advertisement</button>
+        </div>
+        <hr />
+        <h3 style="margin-bottom: 20px; font-weight:700;">Active Advertisement Leads</h3>
+        <div id="ads-grid-container" class="movie-grid"></div>
+      </section>
+
+      <!-- Subscriptions / Plans -->
+      <section id="manage-plans-view" class="view">
+        <h2 class="view-header">Manage Premium Plans</h2>
+        <div class="form-container">
+          <div class="form-group"><label><i class="fa-solid fa-tag"></i> Plan Name</label><input type="text" id="plan-name" placeholder="e.g., PLATINUM" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-money-bill-wave"></i> Price</label><input type="number" id="plan-price" placeholder="199" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-calendar"></i> Duration (Days)</label><input type="number" id="plan-days" placeholder="e.g., 30" /></div>
+          <div class="form-group"><label><i class="fa-solid fa-list-check"></i> Amenities (Comma separated)</label><textarea id="plan-desc" placeholder="4K Resolution, No Ads, Download allowed"></textarea></div>
+          <div class="form-group"><label><i class="fa-solid fa-qrcode"></i> UPI QR Image LINK</label><input type="text" id="plan-qr" placeholder="https://....jpg" /></div>
+          <button class="btn" onclick="savePlan()">Add Plan</button>
+        </div>
+        <hr />
+        <h3 style="margin-bottom: 20px; font-weight:700;">Active Plans</h3>
+        <div id="plans-list-container" class="movie-grid"></div>
+      </section>
+
+      <!-- Users -->
+      <section id="users-view" class="view">
+        <h2 class="view-header">Manage Users & Bans</h2>
+        <div class="table-container">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>User ID</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="user-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Maintenance -->
+      <section id="maintenance-view" class="view">
+        <h2 class="view-header">App Maintenance Mode</h2>
+        <div class="form-container" style="max-width: 600px">
+          <div class="form-group">
+            <label><i class="fa-solid fa-power-off"></i> Enable Maintenance Mode (Affects full app)</label>
+            <div class="switch-container">
+              <label class="switch"><input type="checkbox" id="maintenance-toggle" /><span class="slider"></span></label>
+              <span id="maintenance-status-text">App is LIVE</span>
+            </div>
+          </div>
+          <button class="btn" onclick="handleSaveMaintenance()">Save Settings</button>
+        </div>
+      </section>
+      
+      <!-- App Control & Config -->
+      <section id="app-control-view" class="view">
+        <h2 class="view-header">App Version Control</h2>
+        <div class="form-container">
+          <div class="form-group"><label>Version Code</label><input type="number" id="app-ver-code" placeholder="2" /></div>
+          <div class="form-group"><label>App Update URL</label><input type="text" id="app-apk-url" placeholder="https://" /></div>
+          <div class="form-group"><label>App Logo/Brand Name</label><input type="text" id="app-logo-text" placeholder="FREE CINN" /></div>
+          <button class="btn" onclick="saveAppControlSettings()">Update App Settings</button>
+        </div>
+      </section>
+      
+      <section id="movie-requests-view" class="view">
+        <h2 class="view-header">User Requests</h2>
+        <div class="table-container">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Item Title</th>
+                <th>Year</th>
+                <th>Language</th>
+                <th>Requested By</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="request-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <div class="modal-overlay" id="search-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Select from Results</h3>
+          <button class="modal-close" onclick="closeSearchModal()">&times;</button>
+        </div>
+        <div id="search-results-container"></div>
+      </div>
+    </div>
+    
+    <script src="script.js"></script>
+  </body>
+</html>

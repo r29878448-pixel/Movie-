@@ -4,15 +4,14 @@ import { getDatabase } from 'firebase/database';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAdSE29j85iVghbN63LGvCAxTQ5YkoQO_c",
-  authDomain: "agniflix-25b59.firebaseapp.com",
-  databaseURL: "https://agniflix-25b59-default-rtdb.firebaseio.com",
-  projectId: "agniflix-25b59",
-  storageBucket: "agniflix-25b59.firebasestorage.app",
-  messagingSenderId: "594773029970",
-  appId: "1:594773029970:web:5dd7b02ed67edca5965b8b"
+  apiKey: "AIzaSyBmtKpV09mghDTM7t8Gr2LqUFbNguLBBLc",
+  authDomain: "jarvis-8f458.firebaseapp.com",
+  databaseURL: "https://jarvis-8f458-default-rtdb.firebaseio.com",
+  projectId: "jarvis-8f458",
+  storageBucket: "jarvis-8f458.firebasestorage.app",
+  messagingSenderId: "146465738672",
+  appId: "1:146465738672:web:2cf3e973f6a78413681075"
 };
-
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);

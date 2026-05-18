@@ -1,0 +1,8 @@
+{
+  "name": "NX Cinema",
+  "description": "Premium movie streaming platform with Firebase authentication, Firestore, and modern cinematic UI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

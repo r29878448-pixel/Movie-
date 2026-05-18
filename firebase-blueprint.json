@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "username": { "type": "string" },
+        "membershipType": { "type": "string", "enum": ["free", "premium"] },
+        "avatar": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["email", "username", "membershipType", "createdAt"]
+    },
+    "Movie": {
+      "title": "Movie",
+      "description": "Movie metadata and details",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "poster": { "type": "string" },
+        "banner": { "type": "string" },
+        "rating": { "type": "number" },
+        "year": { "type": "number" },
+        "language": { "type": "string" },
+        "category": { "type": "string" },
+        "ncBadge": { "type": "boolean" },
+        "videoUrl": { "type": "string" },
+        "isPremium": { "type": "boolean" },
+        "type": { "type": "string", "enum": ["Movie", "Anime"] },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["title", "poster", "category", "createdAt"]
+    },
+    "LiveTV": {
+      "title": "Live TV Channel",
+      "description": "Live streaming channels",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "streamUrl": { "type": "string" },
+        "isOnline": { "type": "boolean" },
+        "badge": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "isOnline", "createdAt"]
+    },
+    "Comment": {
+      "title": "Comment",
+      "description": "User comments on content",
+      "type": "object",
+      "properties": {
+        "contentId": { "type": "string" },
+        "userId": { "type": "string" },
+        "username": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["contentId", "userId", "text", "createdAt"]
+    },
+    "WatchlistItem": {
+      "title": "Watchlist Item",
+      "description": "An item saved to a user's watchlist",
+      "type": "object",
+      "properties": {
+        "contentId": { "type": "string" },
+        "contentType": { "type": "string" },
+        "addedAt": { "type": "number" }
+      },
+      "required": ["contentId", "contentType", "addedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    },
+    "/movies/{movieId}": {
+      "schema": { "$ref": "#/entities/Movie" },
+      "description": "Stores all movie records."
+    },
+    "/livetv/{channelId}": {
+      "schema": { "$ref": "#/entities/LiveTV" },
+      "description": "Stores live TV channel records."
+    },
+    "/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/Comment" },
+      "description": "Stores comments mapped to specific content."
+    },
+    "/users/{userId}/watchlist/{itemId}": {
+      "schema": { "$ref": "#/entities/WatchlistItem" },
+      "description": "Stores items in a user's watchlist."
+    }
+  }
+}

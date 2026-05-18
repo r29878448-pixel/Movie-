@@ -1,0 +1,111 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} { 
+      allow read, write: if false; 
+    }
+
+    function isAdmin() {
+      // In a real app, verify admin role via a specific document or a robust claim system
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isMapWithKeys(data, keysList) {
+      return data.keys().hasAll(keysList) && data.keys().size() == keysList.size();
+    }
+
+    // Validation Functions
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['email', 'username', 'membershipType', 'createdAt']) &&
+             data.email is string && data.email.size() <= 256 &&
+             data.username is string && data.username.size() <= 64 &&
+             data.membershipType is string && (data.membershipType == 'free' || data.membershipType == 'premium') &&
+             data.createdAt is number &&
+             (data.keys().hasAll(['avatar']) == false || (data.avatar is string && data.avatar.size() <= 1024));
+    }
+
+    function isValidWatchlistItem(data) {
+      return isMapWithKeys(data, ['contentId', 'contentType', 'addedAt']) &&
+             data.contentId is string && data.contentId.size() <= 128 &&
+             data.contentType is string && data.contentType.size() <= 32 &&
+             data.addedAt is number;
+    }
+
+    // Rules Definitions
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId);
+      // Optional: limit list reads depending on privacy
+      allow list: if isSignedIn();
+
+      allow create: if isSignedIn() && 
+                    request.auth.uid == userId && 
+                    isValidUser(incoming()) && 
+                    incoming().createdAt == request.time.toMillis();
+      
+      allow update: if isSignedIn() && 
+                    request.auth.uid == userId && 
+                    isValidUser(incoming()) &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['username', 'avatar', 'membershipType']);
+      
+      allow delete: if isAdmin();
+
+      match /watchlist/{itemId} {
+        allow read: if isSignedIn() && request.auth.uid == userId;
+        allow create: if isSignedIn() && 
+                      request.auth.uid == userId && 
+                      isValidId(itemId) && 
+                      isValidWatchlistItem(incoming()) &&
+                      incoming().addedAt == request.time.toMillis();
+        allow delete: if isSignedIn() && request.auth.uid == userId;
+      }
+    }
+
+    match /movies/{movieId} {
+      allow read: if isSignedIn() && isValidId(movieId);
+      allow list: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /livetv/{channelId} {
+      allow read: if isSignedIn() && isValidId(channelId);
+      allow list: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /comments/{commentId} {
+      allow read: if isSignedIn() && isValidId(commentId);
+      allow list: if isSignedIn();
+      
+      allow create: if isSignedIn() && 
+                    isValidId(commentId) &&
+                    incoming().keys().hasAll(['contentId', 'userId', 'username', 'text', 'createdAt']) &&
+                    incoming().contentId is string && incoming().contentId.size() <= 128 &&
+                    incoming().userId == request.auth.uid &&
+                    incoming().username is string && incoming().username.size() <= 64 &&
+                    incoming().text is string && incoming().text.size() > 0 && incoming().text.size() <= 1000 &&
+                    incoming().createdAt == request.time.toMillis();
+      
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn() && request.auth.uid == adminId;
+      allow write: if false; // Only manageable through backend or specific process
+    }
+  }
+}
